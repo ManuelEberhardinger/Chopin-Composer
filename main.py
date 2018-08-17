@@ -1,5 +1,5 @@
 from midihelper import MidiHelper, generate_midi_from_prediction
-from NeuralNetwork import CustomModel
+from neuralnetwork import CustomModel
 
 midiHelper = MidiHelper("chopin-midi", "chopinNotes")
 network_input, network_output = midiHelper.generate_sequences(100)
