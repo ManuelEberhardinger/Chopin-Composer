@@ -4,7 +4,7 @@ from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.layers import Activation
 from keras.callbacks import ModelCheckpoint
-import numpy
+import numpy as np
 import os
 
 
@@ -34,7 +34,6 @@ class CustomModel:
 
         self.weightsPath = 'weights.hdf5'
         self.model = model
-        self.model_trained = False
 
     def train(self, epochs, batch_size):
         """ train the neural network """
@@ -50,7 +49,6 @@ class CustomModel:
 
         self.model.fit(self.network_input, self.network_output, epochs=epochs, batch_size=batch_size, callbacks=callbacks_list)
         self.model.save_weights(self.weightsPath)
-        self.model_trained = True
 
     def get_int_to_note_mapping(self):
         # get all pitch names
@@ -59,26 +57,27 @@ class CustomModel:
         return int_to_note
 
     def generate_music(self, sequence_length):
-        if not os.path.isfile(self.weightsPath) or not self.model_trained:
+        if not os.path.isfile(self.weightsPath):
             print("Model not trainend and no weigths file exists.. return..")
             return
 
         self.model.load_weights(self.weightsPath)
 
-        start = numpy.random.randint(0, len(self.network_input) - 1)
+        print("Start generating music..")
+        start = np.random.randint(0, len(self.network_input) - 1)
         int_to_note = self.get_int_to_note_mapping()
         pattern = self.network_input[start]
         prediction_output = []
 
         # generate #sequence_length notes
         for note_index in range(sequence_length):
-            prediction_input = numpy.reshape(pattern, (1, len(pattern), 1))
+            prediction_input = np.reshape(pattern, (1, len(pattern), 1))
             prediction_input = prediction_input / float(self.n_vocab)
             prediction = self.model.predict(prediction_input, verbose=0)
-            index = numpy.argmax(prediction)
+            index = np.argmax(prediction)
             result = int_to_note[index]
             prediction_output.append(result)
-            pattern.append(index)
+            pattern = np.append(pattern, index)
             pattern = pattern[1:len(pattern)]
 
         return prediction_output
