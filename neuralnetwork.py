@@ -74,7 +74,7 @@ class CustomModel:
             prediction_input = np.reshape(pattern, (1, len(pattern), 1))
             prediction_input = prediction_input / float(self.n_vocab)
             prediction = self.model.predict(prediction_input, verbose=0)
-            index = np.argmax(prediction)
+            index = int(np.argmax(prediction))
             result = int_to_note[index]
             prediction_output.append(result)
             pattern = np.append(pattern, index)
