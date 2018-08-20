@@ -2,6 +2,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers import LSTM
+from keras.layers import GRU
 from keras.layers import Activation
 from keras.callbacks import ModelCheckpoint
 import numpy as np
@@ -16,24 +17,60 @@ class CustomModel:
         self.notes = notes
         self.n_vocab = len(set(notes))
 
+        self.weightsPath = 'weights.hdf5'
+        self.model = self.create_model()
+
+    def create_big_model(self):
         model = Sequential()
         model.add(LSTM(
             512,
-            input_shape=(network_input.shape[1], network_input.shape[2]),
+            input_shape=(self.network_input.shape[1], self.network_input.shape[2]),
             return_sequences=True
         ))
         model.add(Dropout(0.3))
         model.add(LSTM(512, return_sequences=True))
         model.add(Dropout(0.3))
         model.add(LSTM(512))
-        model.add(Dense(256))
+        model.add(Dense(2048))
         model.add(Dropout(0.3))
         model.add(Dense(self.n_vocab))
         model.add(Activation('softmax'))
         model.compile(loss='categorical_crossentropy', optimizer='adam')
+        return model
 
-        self.weightsPath = 'weights.hdf5'
-        self.model = model
+    def create_small_model(self):
+        model = Sequential()
+        model.add(LSTM(
+            256,
+            input_shape=(self.network_input.shape[1], self.network_input.shape[2]),
+            return_sequences=True
+        ))
+        model.add(Dropout(0.3))
+        model.add(LSTM(256))
+        model.add(Dense(2048))
+        model.add(Dropout(0.3))
+        model.add(Dense(self.n_vocab))
+        model.add(Activation('softmax'))
+        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        return model
+
+    def create_model(self):
+        model = Sequential()
+        model.add(LSTM(
+            512,
+            input_shape=(self.network_input.shape[1], self.network_input.shape[2]),
+            return_sequences=True
+        ))
+        model.add(Dropout(0.3))
+        model.add(GRU(512, activation='relu', dropout=0.3, recurrent_dropout=0.5, return_sequences=True))
+        model.add(LSTM(512))
+        model.add(Dense(2048))
+        model.add(Dense(2048))
+        model.add(Dropout(0.3))
+        model.add(Dense(self.n_vocab))
+        model.add(Activation('softmax'))
+        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        return model
 
     def train(self, epochs, batch_size):
         """ train the neural network """
@@ -73,7 +110,7 @@ class CustomModel:
         for note_index in range(sequence_length):
             prediction_input = np.reshape(pattern, (1, len(pattern), 1))
             prediction_input = prediction_input / float(self.n_vocab)
-            prediction = self.model.predict(prediction_input, verbose=0)
+            prediction = self.model.predict(prediction_input, verbose=1)
             index = int(np.argmax(prediction))
             result = int_to_note[index]
             prediction_output.append(result)

@@ -120,6 +120,13 @@ def generate_midi_from_prediction(prediction_output, file_name):
             output_notes.append(new_note)
 
         # increase offset each iteration so that notes do not stack
+        if "/" in pattern_and_offset[1]:
+            numbers = pattern_and_offset[1].split('/')
+            if len(numbers) == 2:
+                pattern_and_offset[1] = float(numbers[0]) / float(numbers[1])
+            else:
+                pattern_and_offset[1] = 0.5  # if not two numbers are given set a standard offset
+
         offset += float(pattern_and_offset[1])
 
     if not file_name.endswith('.mid'):
