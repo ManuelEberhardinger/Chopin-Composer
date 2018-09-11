@@ -5,22 +5,29 @@ from keras.layers import LSTM
 from keras.layers import GRU
 from keras.layers import Activation
 from keras.callbacks import ModelCheckpoint
+from keras.models import load_model
 import numpy as np
 import os
+import pickle
 
 
 class CustomModel:
 
-    def __init__(self, network_input, network_output, notes):
+    def __init__(self, network_input, network_output, notes, model_name, train=True):
         self.network_input = network_input
         self.network_output = network_output
         self.notes = notes
         self.n_vocab = len(set(notes))
+        self.model_name = model_name
+        self.model_path = "./weights/" + self.model_name + ".hdf5"
+        self.train = train
 
-        self.weightsPath = 'weights.hdf5'
-        self.model = self.create_model()
+        if self.train:
+            self.model = getattr(self, self.model_name)()
+        else:
+            self.model = load_model(self.model_path)
 
-    def create_big_model(self):
+    def big_model(self):
         model = Sequential()
         model.add(LSTM(
             512,
@@ -35,10 +42,10 @@ class CustomModel:
         model.add(Dropout(0.3))
         model.add(Dense(self.n_vocab))
         model.add(Activation('softmax'))
-        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['loss'])
         return model
 
-    def create_small_model(self):
+    def small_model(self):
         model = Sequential()
         model.add(LSTM(
             256,
@@ -51,10 +58,10 @@ class CustomModel:
         model.add(Dropout(0.3))
         model.add(Dense(self.n_vocab))
         model.add(Activation('softmax'))
-        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['loss'])
         return model
 
-    def create_model(self):
+    def model(self):
         model = Sequential()
         model.add(LSTM(
             512,
@@ -69,23 +76,36 @@ class CustomModel:
         model.add(Dropout(0.3))
         model.add(Dense(self.n_vocab))
         model.add(Activation('softmax'))
-        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['loss'])
         return model
 
     def train(self, epochs, batch_size):
+        if not self.train:
+            return
+
         """ train the neural network """
-        file_path = "weights-improvement-{epoch:02d}-{loss:.4f}-bigger.hdf5"
+        file_path = "./weights/" + self.model_name + "-{epoch:02d}-{loss:.4f}.hdf5"
         checkpoint = ModelCheckpoint(
             file_path,
             monitor='loss',
             verbose=0,
-            save_best_only=True,
-            mode='min'
+            save_best_only=False,
+            mode='min',
+            period=50
         )
         callbacks_list = [checkpoint]
 
-        self.model.fit(self.network_input, self.network_output, epochs=epochs, batch_size=batch_size, callbacks=callbacks_list)
-        self.model.save_weights(self.weightsPath)
+        history = self.model.fit(self.network_input, self.network_output, epochs=epochs,
+                                 batch_size=batch_size, callbacks=callbacks_list)
+
+        # save history of model
+        with open("./" + self.model_name + "_history", 'wb') as f:
+            pickle.dump(history.history, f)
+
+        self.model.save(self.model_path)
+
+        # model is trained so set flag to false
+        self.train = False
 
     def get_int_to_note_mapping(self):
         # get all pitch names
@@ -94,11 +114,9 @@ class CustomModel:
         return int_to_note
 
     def generate_music(self, sequence_length):
-        if not os.path.isfile(self.weightsPath):
-            print("Model not trainend and no weigths file exists.. return..")
+        # in train mode so no music should be generated
+        if self.train:
             return
-
-        self.model.load_weights(self.weightsPath)
 
         print("Start generating music..")
         start = np.random.randint(0, len(self.network_input) - 1)

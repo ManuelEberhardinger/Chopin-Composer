@@ -3,4 +3,4 @@ __pycache__/
 .idea/
 chopinNotes
 chopinNotesWithOffset
-weights.hdf5
+weights/
