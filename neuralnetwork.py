@@ -42,7 +42,7 @@ class CustomModel:
         model.add(Dropout(0.3))
         model.add(Dense(self.n_vocab))
         model.add(Activation('softmax'))
-        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['loss'])
+        model.compile(loss='categorical_crossentropy', optimizer='adam')
         return model
 
     def small_model(self):
@@ -58,7 +58,7 @@ class CustomModel:
         model.add(Dropout(0.3))
         model.add(Dense(self.n_vocab))
         model.add(Activation('softmax'))
-        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['loss'])
+        model.compile(loss='categorical_crossentropy', optimizer='adam')
         return model
 
     def model(self):
@@ -76,10 +76,10 @@ class CustomModel:
         model.add(Dropout(0.3))
         model.add(Dense(self.n_vocab))
         model.add(Activation('softmax'))
-        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['loss'])
+        model.compile(loss='categorical_crossentropy', optimizer='adam')
         return model
 
-    def train(self, epochs, batch_size):
+    def train_model(self, epochs, batch_size):
         if not self.train:
             return
 
