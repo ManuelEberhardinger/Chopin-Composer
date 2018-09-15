@@ -7,24 +7,24 @@ from keras.layers import Activation
 from keras.callbacks import ModelCheckpoint
 from keras.models import load_model
 import numpy as np
-import os
 import pickle
 
 
 class CustomModel:
 
-    def __init__(self, network_input, network_output, notes, model_name, train=True):
+    def __init__(self, network_input, network_output, notes, model_name, train):
         self.network_input = network_input
         self.network_output = network_output
         self.notes = notes
         self.n_vocab = len(set(notes))
         self.model_name = model_name
-        self.model_path = "./weights/" + self.model_name + ".hdf5"
         self.train = train
 
         if self.train:
+            self.model_path = "./weights/" + self.model_name + ".hdf5"
             self.model = getattr(self, self.model_name)()
         else:
+            self.model_path = model_name
             self.model = load_model(self.model_path)
 
     def big_model(self):
@@ -38,6 +38,24 @@ class CustomModel:
         model.add(LSTM(512, return_sequences=True))
         model.add(Dropout(0.3))
         model.add(LSTM(512))
+        model.add(Dense(2048))
+        model.add(Dropout(0.3))
+        model.add(Dense(self.n_vocab))
+        model.add(Activation('softmax'))
+        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        return model
+
+    def small_model2(self):
+        model = Sequential()
+        model.add(LSTM(
+            128,
+            input_shape=(self.network_input.shape[1], self.network_input.shape[2]),
+            return_sequences=True
+        ))
+        model.add(Dropout(0.3))
+        model.add(LSTM(128, return_sequences=True))
+        model.add(Dropout(0.3))
+        model.add(LSTM(128))
         model.add(Dense(2048))
         model.add(Dropout(0.3))
         model.add(Dense(self.n_vocab))
@@ -72,6 +90,7 @@ class CustomModel:
         model.add(GRU(512, activation='relu', dropout=0.3, recurrent_dropout=0.5, return_sequences=True))
         model.add(LSTM(512))
         model.add(Dense(2048))
+        model.add(Dropout(0.3))
         model.add(Dense(2048))
         model.add(Dropout(0.3))
         model.add(Dense(self.n_vocab))
@@ -124,7 +143,7 @@ class CustomModel:
         pattern = self.network_input[start]
         prediction_output = []
 
-        # generate #sequence_length notes
+        # generate sequence_length notes
         for note_index in range(sequence_length):
             prediction_input = np.reshape(pattern, (1, len(pattern), 1))
             prediction_input = prediction_input / float(self.n_vocab)
