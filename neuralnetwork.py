@@ -116,7 +116,7 @@ class CustomModel:
         model.compile(loss='categorical_crossentropy', optimizer='adam')
         return model
 
-    def train_model(self, epochs, batch_size):
+    def train_network(self, epochs, batch_size):
         if not self.train:
             return
 
