@@ -8,6 +8,7 @@ from keras.callbacks import ModelCheckpoint
 from keras.models import load_model
 import numpy as np
 import pickle
+import os
 
 
 class CustomModel:
@@ -22,7 +23,10 @@ class CustomModel:
 
         if self.train:
             self.model_path = "./weights/" + self.model_name + ".hdf5"
-            self.model = getattr(self, self.model_name)()
+            if os.path.isfile(self.model_path):
+                self.model = load_model(self.model_path)
+            else:
+                self.model = getattr(self, self.model_name)()
         else:
             self.model_path = model_name
             self.model = load_model(self.model_path)
