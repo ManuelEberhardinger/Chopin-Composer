@@ -85,6 +85,22 @@ class CustomModel:
         model.compile(loss='categorical_crossentropy', optimizer='adam')
         return model
 
+    def small_model64(self):
+        model = Sequential()
+        model.add(LSTM(
+            64,
+            input_shape=(self.network_input.shape[1], self.network_input.shape[2]),
+            return_sequences=True
+        ))
+        model.add(Dropout(0.3))
+        model.add(LSTM(64))
+        model.add(Dense(1024))
+        model.add(Dropout(0.3))
+        model.add(Dense(self.n_vocab))
+        model.add(Activation('softmax'))
+        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        return model
+
     def small_model(self):
         model = Sequential()
         model.add(LSTM(
