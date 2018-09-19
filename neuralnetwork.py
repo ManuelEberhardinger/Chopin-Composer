@@ -31,6 +31,8 @@ class CustomModel:
             self.model_path = model_name
             self.model = load_model(self.model_path)
 
+        self.model.summary()
+
     def big_model(self):
         model = Sequential()
         model.add(LSTM(
