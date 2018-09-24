@@ -11857,7 +11857,8 @@ To run the code clone the Github repo and run the main.py file: e.g <code>python
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="2.-Data-Access,-Data-Understanding,-Preprocessing,-Feature-Selection-or-Feature-Extraction">2. Data Access, Data Understanding, Preprocessing, Feature Selection or Feature Extraction<a class="anchor-link" href="#2.-Data-Access,-Data-Understanding,-Preprocessing,-Feature-Selection-or-Feature-Extraction">&#182;</a></h2><p>All of these different stages of the process are implemented in the midihelper.py file.</p>
 <h3 id="Data-Access">Data Access<a class="anchor-link" href="#Data-Access">&#182;</a></h3><p>The midi files were retrieved from this site: <a href="http://www.piano-midi.de/chopin_d.htm">http://www.piano-midi.de/chopin_d.htm</a></p>
-<h3 id="Data-Understanding">Data Understanding<a class="anchor-link" href="#Data-Understanding">&#182;</a></h3><p>There are three different format of midi files:</p>
+<h3 id="Data-Understanding">Data Understanding<a class="anchor-link" href="#Data-Understanding">&#182;</a></h3><p>A Midi file is short for Musical Instrument Digital Interface file. A midi file doesn't contain audio data, so the size is much smaller. It contains information what notes are played and how long or loud it should be played.</p>
+<p>There are three different format of midi files:</p>
 <ul>
 <li>Type 0 - all the tracks are merged into a single track</li>
 <li>Type 1 - separate information for each track</li>
@@ -12253,7 +12254,7 @@ To run the code clone the Github repo and run the main.py file: e.g <code>python
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>After all epochs only the same single note is predicted</p>
+<p>After checking all epochs, only the same single note is predicted when generating music.</p>
 <h3 id="small-model">small model<a class="anchor-link" href="#small-model">&#182;</a></h3>
 </div>
 </div>
@@ -12335,6 +12336,7 @@ To run the code clone the Github repo and run the main.py file: e.g <code>python
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>This model can predict music and the loss decreases after all epochs.</p>
 <h3 id="small-model2">small model2<a class="anchor-link" href="#small-model2">&#182;</a></h3>
 </div>
 </div>
@@ -12418,6 +12420,7 @@ To run the code clone the Github repo and run the main.py file: e.g <code>python
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>This model can predict music and the loss decreases after all epochs.</p>
 <h3 id="model">model<a class="anchor-link" href="#model">&#182;</a></h3>
 </div>
 </div>
@@ -12502,7 +12505,7 @@ To run the code clone the Github repo and run the main.py file: e.g <code>python
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>After 50 epochs different notes are predicted but then the loss increases significantly and then only the same single note is predicted.</p>
+<p>After 50 epochs different notes are predicted but then the loss increases significantly and then only the same single note is predicted. This can happen because of the ReLU activation function.</p>
 <h3 id="model-gru">model gru<a class="anchor-link" href="#model-gru">&#182;</a></h3>
 </div>
 </div>
@@ -12586,6 +12589,7 @@ To run the code clone the Github repo and run the main.py file: e.g <code>python
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>After 50, 100 and 150 epochs the model can generate music but after 200 epochs only the same one or two notes are predicted all the time.</p>
 <h3 id="small-model64">small model64<a class="anchor-link" href="#small-model64">&#182;</a></h3>
 </div>
 </div>
@@ -12667,6 +12671,7 @@ To run the code clone the Github repo and run the main.py file: e.g <code>python
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>This model can predict music and the loss decreases after all epochs.</p>
 <h3 id="Music-Generation-(4.-Evaluation-and-Visualisation)">Music Generation (4. Evaluation and Visualisation)<a class="anchor-link" href="#Music-Generation-(4.-Evaluation-and-Visualisation)">&#182;</a></h3><p>This chapter describes how music can be generated with a trained neural network. As the network is not able to generate music from the beginning with an own start sequence, a random integer will choose an input pattern from the network inputs. With this pattern the network can predict new music but it will only predict the indexes of the notes, so the indexes must be converted into the notes.</p>
 
 </div>
@@ -12801,7 +12806,15 @@ To run the code clone the Github repo and run the main.py file: e.g <code>python
 <li>minimizing the error not always improves the generated music</li>
 <li>there can be a huge improvement with more epochs training although the loss is almost the same</li>
 <li>sometimes whole parts of the generated music are copied from the training data or almost sounds similar</li>
+<li>smaller LSTM/GRU-Units are better for training and music generation </li>
 </ul>
+<p>The best generated music/models:</p>
+<ul>
+<li>small_model2 after 200 epochs of training</li>
+<li>model_gru after 100 epochs of training at about offset 40</li>
+<li>in results_old test_200_epochs_no_offset.mid</li>
+</ul>
+<p>The generation of music with no prediction of the offset is easier because the number of possible output classes is only at about 300 and with the predicition of the offset it is about 3000. The music without offset sounds smoother than the one with offset which sounds wild and a bit out of control.</p>
 <p>Further work and questions:</p>
 <ul>
 <li>use another loss function as not only one note is correct but more notes could be correct (maybe check for the intervals)</li>
